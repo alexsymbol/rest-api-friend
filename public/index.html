@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Friendgo</title>
+	<link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet" />
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+	<h1 class="title">Friends REST API</h1>
+	<div id="homepage">
+		<h2>Hire a friend in your area!</h2>
+		<div id="friends"></div>
+	</div>
+	<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+	<script src="https://unpkg.com/react@15/dist/react.js"></script>
+	<script src="https://unpkg.com/react-dom@15/dist/react-dom.min.js"></script>
+
+	<!-- Create React component -->
+	<script type="text/babel">
+		var Friends = React.createClass({
+			getInitialState: function(){
+				return ({
+					friends: []
+				}); 
+			},
+			render: function(){
+				var friends = this.state.friends;
+				friends = friends.map(function(friend, index){
+					return (
+						<li key={index}>
+							<span className={friend.available}></span>
+							<span className="name">{friend.name}</span>
+							<span className="surname">{friend.surname}</span>
+							<span className="dist">{Math.floor(friend.dis / 10000)} km</span>
+						</li>
+					)
+				});
+				return(
+					<div id="friend-container">
+						<form id="search" onSubmit={this.handleSubmit}>
+							<lable>Enter your lalitude:</lable>
+							<input type="text" ref="lat" placeholder="latitude" required />
+							<lable>Enter your longitude:</lable>
+							<input type="text" ref="lng" placeholder="longitude" required />
+							<input type="submit" value="Find Friends" />
+						</form>
+						<ul>{friends}</ul>
+					</div>	
+				);	
+			},
+			handleSubmit: function(e){
+				e.preventDefault();
+				var lng = this.refs.lng.value;
+				var lat = this.refs.lat.value;
+
+				fetch('/api/friends/?lng=' + lng + '&lat=' + lat).then(function(data){
+					return data.json();
+				}).then(json => {
+					this.setState({
+						friends: json
+					});
+				});
+			}
+		});
+
+		ReactDOM.render(<Friends />, document.getElementById('friends'));
+	</script>
+
+</body>
+</html>
